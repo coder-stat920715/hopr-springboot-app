@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: hopr
+  profiles:
+    default: dev
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+hopr:
+  jwt:
+    secret: ${HOPR_JWT_SECRET:hopr-super-secret-signing-key-change-me-in-production-0123456789}
+    access-token-minutes: 120
+    refresh-token-days: 14
+  otp:
+    length: 6
+    ttl-minutes: 5
+    max-attempts: 5
+    fixed-code: ""
+    expose-in-response: false
+  mail:
+    enabled: false
+    from: no-reply@hopr.app
+  pricing:
+    car-rate-per-km: 8.00
+    bike-rate-per-km: 4.00
+    minimum-fare: 10
+    discount-percent: 25
+    platform-fee-percent: 5
+  matching:
+    default-window-minutes: 30
+    max-walk-meters: 1500
+    min-match-percentage: 50
+    road-factor: 1.25
+    average-speed-kmph: 25
+    nearby-pickup-meters: 500
+    pickup-window-minutes: 10
+    exclude-past-rides: true
+  planner:
+    horizon-days: 7
+  cancellation:
+    free-window-minutes: 30
+    penalty-percent: 20
+  referral:
+    referrer-reward: 100
+    referee-reward: 50
+    lifetime-cap: 10000
+  seed:
+    enabled: false

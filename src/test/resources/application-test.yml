@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.hopr: INFO

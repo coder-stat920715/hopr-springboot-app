@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hopr}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:hopr}
+    password: ${DB_PASSWORD:hopr}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+
+hopr:
+  otp:
+    expose-in-response: false
+  mail:
+    enabled: ${HOPR_MAIL_ENABLED:false}
+  seed:
+    enabled: ${HOPR_SEED_ENABLED:true}

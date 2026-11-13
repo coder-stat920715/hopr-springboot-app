@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hopr
+      POSTGRES_USER: hopr
+      POSTGRES_PASSWORD: hopr
+    ports:
+      - "5432:5432"
+    volumes:
+      - hopr-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hopr -d hopr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/hopr
+      DB_USERNAME: hopr
+      DB_PASSWORD: hopr
+      HOPR_JWT_SECRET: change-this-to-a-long-random-secret-of-at-least-32-chars
+      HOPR_SEED_ENABLED: "true"
+      # With seeding enabled in prod OTPs are random and only logged. For a demo, uncomment:
+      # HOPR_OTP_FIXEDCODE: "123456"
+      # HOPR_OTP_EXPOSEINRESPONSE: "true"
+    ports:
+      - "8080:8080"
+
+volumes:
+  hopr-pgdata:

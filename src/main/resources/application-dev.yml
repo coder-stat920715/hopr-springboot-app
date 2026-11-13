@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hoprdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    show-sql: false
+
+hopr:
+  otp:
+    fixed-code: "123456"
+    expose-in-response: true
+  matching:
+    exclude-past-rides: false
+  seed:
+    enabled: true
+
+logging:
+  level:
+    com.hopr: DEBUG

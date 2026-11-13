@@ -1,0 +1,12 @@
+package com.hopr.repository;
+
+import com.hopr.entity.SupportTicket;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface SupportTicketRepository extends JpaRepository<SupportTicket, Long> {
+    List<SupportTicket> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    List<SupportTicket> findAllByOrderByCreatedAtDesc();
+}
