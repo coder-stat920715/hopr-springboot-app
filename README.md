@@ -739,3 +739,8 @@ Screenshots are stored under `hopr.appeals.upload-dir` (default `uploads/appeals
 ### Notes
 * `RideService.migrateCitySchedules` now cancels **all** upcoming rides of the host (not only template-generated ones).
 * Postman: `postman/hopr-postman-collection.json` (174 requests) - folders 9-13 cover the new features.
+
+
+## Testing & coverage
+`mvn clean verify` runs the JUnit/Mockito/MockMvc suite and writes the JaCoCo report to `target/site/jacoco/index.html`.
+See `docs/TEST_COVERAGE.md` for the class-to-test map and how to enforce a 100 % gate (`-Djacoco.minimum=1.00`).
