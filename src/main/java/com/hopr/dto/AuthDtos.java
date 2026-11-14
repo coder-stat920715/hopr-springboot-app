@@ -7,7 +7,8 @@ public final class AuthDtos {
     private AuthDtos() {
     }
 
-    public record SendOtpRequest(@NotBlank String phone) {
+    public record SendOtpRequest(@NotBlank String phone, String deviceId, String deviceModel,
+                                 String osPlatform) {
     }
 
     public record SendOtpResponse(String message, long expiresInSeconds, String devOtp) {
@@ -15,7 +16,8 @@ public final class AuthDtos {
 
     public record VerifyOtpRequest(@NotBlank String phone,
                                    @NotBlank @Size(min = 4, max = 8) String otp,
-                                   String fullName) {
+                                   String fullName, String deviceId, String deviceModel,
+                                   String osPlatform) {
     }
 
     public record RefreshRequest(@NotBlank String refreshToken) {

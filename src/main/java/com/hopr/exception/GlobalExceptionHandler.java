@@ -1,13 +1,18 @@
 package com.hopr.exception;
 
+import com.hopr.config.HoprProperties;
+import com.hopr.dto.CommonDtos.CompanyLockedResponse;
+import com.hopr.dto.CommonDtos.DeviceLimitErrorResponse;
 import com.hopr.dto.CommonDtos.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,7 +24,35 @@ import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final HoprProperties props;
+
+    @ExceptionHandler(DeviceAccountLimitException.class)
+    public ResponseEntity<DeviceLimitErrorResponse> deviceLimit(DeviceAccountLimitException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DeviceLimitErrorResponse(
+                Instant.now(), 403, "DEVICE_ACCOUNT_LIMIT_REACHED", "Device account limit reached",
+                "This device is already linked to another Hopr account. You cannot register a new mobile number "
+                        + "on this device without submitting an appeal.",
+                "Submit an appeal", props.getAppeals().getExternalFormUrl(), "/api/v1/appeals/submit",
+                "/appeal-form.html"));
+    }
+
+    @ExceptionHandler(CompanyUpdateLockedException.class)
+    public ResponseEntity<CompanyLockedResponse> companyLocked(CompanyUpdateLockedException ex) {
+        return ResponseEntity.status(HttpStatus.LOCKED).body(new CompanyLockedResponse(
+                Instant.now(), 423, "COMPANY_UPDATE_LOCKED", ex.getMessage(),
+                "Your company and corporate e-mail are locked. Submit an appeal to change them.",
+                "/api/v1/appeals/submit", props.getAppeals().getExternalFormUrl(), ex.getPrefilledAppeal()));
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ErrorResponse> bindFailure(BindException ex) {
+        Map<String, String> fields = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(f -> fields.put(f.getField(), f.getDefaultMessage()));
+        return build(HttpStatus.BAD_REQUEST, "Validation failed", fields);
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> notFound(ResourceNotFoundException ex) {

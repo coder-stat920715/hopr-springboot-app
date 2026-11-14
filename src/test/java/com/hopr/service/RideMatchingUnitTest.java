@@ -23,8 +23,8 @@ class RideMatchingUnitTest {
     @BeforeEach
     void setUp() {
         HoprProperties props = new HoprProperties();
-        service = new RideMatchingService(null, null, new PricingService(props), new DtoMapper(), props,
-                Clock.systemDefaultZone());
+        service = new RideMatchingService(null, null, new PricingService(props), new DynamicPricingService(props),
+                new DtoMapper(), props, Clock.systemDefaultZone());
         ride = Ride.builder()
                 .start(GeoPoint.of("Host start", 17.00, 78.00))
                 .end(GeoPoint.of("Host end", 17.10, 78.00))

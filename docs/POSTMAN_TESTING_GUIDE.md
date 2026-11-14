@@ -1,6 +1,6 @@
 # Hopr – Postman Testing Guide
 
-Files: `postman/Hopr.postman_collection.json` (131 requests, each with step-by-step description + assertions) and `postman/Hopr.postman_environment.json` (`baseUrl`).
+Files: `postman/hopr-postman-collection.json` (174 requests, each with step-by-step description + assertions) and `postman/Hopr.postman_environment.json` (`baseUrl`).
 
 ## 1. Prerequisites
 1. Java 21 + Maven. Start the API on the **dev** profile (default): `mvn spring-boot:run`
@@ -10,7 +10,7 @@ Files: `postman/Hopr.postman_collection.json` (131 requests, each with step-by-s
 
 ## 2. How to run
 **Collection Runner:** right-click the collection → *Run collection* → keep the folder order → *Run*. All tests should pass.
-**Newman:** `newman run postman/Hopr.postman_collection.json -e postman/Hopr.postman_environment.json`
+**Newman:** `newman run postman/hopr-postman-collection.json -e postman/Hopr.postman_environment.json`
 **Manual:** open a request, read its *Description* (Purpose / Steps / Expected), press *Send*, then read the *Test Results* tab.
 
 Collection pre-request script computes IST dates into `{{today}}`, `{{tomorrow}}`, `{{d2}}`, `{{d3}}`, `{{d4}}`. Test scripts store ids/tokens in collection variables (`{{arjunToken}}`, `{{lifeRideId}}`, `{{lifeBookingId}}` …) so requests chain automatically.
@@ -41,6 +41,17 @@ Collection pre-request script computes IST dates into `{{today}}`, `{{tomorrow}}
 | **8 Security** | auth & validation | 401 (no/garbage token), 400 validation with `fieldErrors`, 404, 403, refresh-token rules |
 
 Order matters: **0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8** (folder 7 cancels Debojit's Kolkata rides, so run searches in folder 1 first).
+
+### v2 folders
+| Folder | What it proves |
+|---|---|
+| **9 Host mode & Quick Actions** | mode switch dashboard; Quick action cards (Rajan Dutta: 19 m -> 19.4 km -> 498 m, 79 -> 90 UP, > 80% match); pre-acceptance chat + masked call; reject/accept; escrow = dynamic fare |
+| **10 Device guard** | 403 `DEVICE_ACCOUNT_LIMIT_REACHED` for a 2nd number on `DEVICE-SOUPTIK-001`; owner still logs in |
+| **11 Locked profile** | HTTP 423 `COMPANY_UPDATE_LOCKED` with prefilled appeal; city locked too |
+| **12 Appeals** | public submit (JSON + multipart), validation, status tracking, admin approve with unlock flags, device freed |
+| **13 Migration** | Cognizant/Kolkata -> Capgemini/Hyderabad via OTP, history archived, commutes migrated, re-locked |
+
+Run order: 0 -> 1 ... 8, then 9 -> 13.
 
 ## 5. Manual scenarios not automatable in Postman
 ### 5.1 Real-time chat & live location (STOMP over WebSocket)

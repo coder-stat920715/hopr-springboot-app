@@ -4,6 +4,7 @@ import com.hopr.dto.CommonDtos.LocationDto;
 import com.hopr.dto.CommonDtos.PublicUser;
 import com.hopr.dto.VehicleDtos.PublicVehicle;
 import com.hopr.entity.CommuteDirection;
+import com.hopr.entity.FareTrend;
 import com.hopr.entity.RideStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -62,6 +63,7 @@ public final class RideDtos {
                             String pickupWindow, LocalTime pickupWindowStart, LocalTime pickupWindowEnd,
                             int seatsLeft, BigDecimal standardFare, BigDecimal discountedFare,
                             List<String> tags, LocationDto hostStart, LocationDto hostEnd,
-                            LocationDto pickupPoint, LocationDto dropPoint) {
+                            LocationDto pickupPoint, LocationDto dropPoint, BigDecimal dynamicFare,
+                            FareTrend fareTrend) {
     }
 }

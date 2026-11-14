@@ -54,6 +54,8 @@ public class Booking {
     private int dropWalkMeters;
     private int matchPercentage;
 
+    private LocalTime guestPreferredDepartureTime;
+
     private LocalTime pickupWindowStart;
     private LocalTime pickupWindowEnd;
 
@@ -63,11 +65,20 @@ public class Booking {
     @Column(precision = 10, scale = 2)
     private BigDecimal discountedFare;
 
+    /** Surge / dynamic fuel-share price actually charged (falls back to discountedFare when null). */
+    @Column(precision = 10, scale = 2)
+    private BigDecimal dynamicFare;
+
     /** true while the fare is held in escrow from the guest's wallet. */
     private boolean escrowHeld;
 
     private Instant createdAt;
     private Instant respondedAt;
+
+    /** Amount charged to the guest: the dynamic fare when present, otherwise the discounted base fare. */
+    public BigDecimal effectiveFare() {
+        return dynamicFare != null ? dynamicFare : discountedFare;
+    }
 
     @PrePersist
     void onCreate() {

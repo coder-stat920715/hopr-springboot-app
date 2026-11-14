@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,13 +22,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/send-otp")
-    public SendOtpResponse sendOtp(@Valid @RequestBody SendOtpRequest req) {
-        return authService.sendOtp(req);
+    public SendOtpResponse sendOtp(@Valid @RequestBody SendOtpRequest req,
+                                   @RequestHeader(value = "X-Device-Id", required = false) String deviceHeader) {
+        return authService.sendOtp(req, deviceHeader);
     }
 
     @PostMapping("/verify-otp")
-    public TokenResponse verifyOtp(@Valid @RequestBody VerifyOtpRequest req) {
-        return authService.verifyOtp(req);
+    public TokenResponse verifyOtp(@Valid @RequestBody VerifyOtpRequest req,
+                                   @RequestHeader(value = "X-Device-Id", required = false) String deviceHeader) {
+        return authService.verifyOtp(req, deviceHeader);
     }
 
     @PostMapping("/refresh")

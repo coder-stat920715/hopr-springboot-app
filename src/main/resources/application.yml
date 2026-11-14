@@ -3,6 +3,10 @@ spring:
     name: hopr
   profiles:
     default: dev
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 30MB
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -43,6 +47,12 @@ hopr:
     minimum-fare: 10
     discount-percent: 25
     platform-fee-percent: 5
+    dynamic:
+      enabled: true
+      peak-surcharge-percent: 10
+      off-peak-discount-percent: 5
+      max-detour-surcharge-percent: 8
+      scarcity-surcharge-percent: 5
   matching:
     default-window-minutes: 30
     max-walk-meters: 1500
@@ -61,5 +71,11 @@ hopr:
     referrer-reward: 100
     referee-reward: 50
     lifetime-cap: 10000
+  security:
+    max-accounts-per-device: 1
+  appeals:
+    external-form-url: https://survey.zohopublic.in/zs/ekBH9S
+    upload-dir: uploads/appeals
+    max-attachments: 5
   seed:
     enabled: false

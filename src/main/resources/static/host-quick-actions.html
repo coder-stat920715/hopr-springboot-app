@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hopr - Host Quick Actions</title>
+<style>
+  :root { --purple:#6b2fd6; --purple-dark:#4b1fa0; --bg:#f4f0ff; --card:#fff; --text:#1d1433; --muted:#6d6585; --green:#1a9d4b; --red:#d6334a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); }
+  header { background:linear-gradient(135deg,var(--purple),var(--purple-dark)); color:#fff; padding:18px 16px 28px; }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:4px 0 0; opacity:.85; font-size:13px; }
+  .login { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .login select, .login button { padding:8px 10px; border-radius:8px; border:0; font-size:14px; }
+  .login button { background:#fff; color:var(--purple); font-weight:600; cursor:pointer; }
+  main { max-width:520px; margin:-16px auto 40px; padding:0 12px; }
+  .metrics { display:flex; gap:8px; margin-bottom:12px; }
+  .metric { flex:1; background:var(--card); border-radius:12px; padding:10px; text-align:center; box-shadow:0 2px 8px rgba(80,40,160,.12); }
+  .metric b { display:block; font-size:18px; color:var(--purple); }
+  .metric span { font-size:11px; color:var(--muted); }
+  h2 { font-size:17px; margin:14px 4px 8px; }
+  .card { background:var(--card); border-radius:16px; padding:14px; margin-bottom:14px; box-shadow:0 3px 12px rgba(80,40,160,.15); }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .when { font-size:13px; color:var(--muted); }
+  .guest { display:flex; align-items:center; gap:10px; margin:10px 0; }
+  .avatar { width:42px; height:42px; border-radius:50%; background:var(--purple); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .name { font-weight:700; }
+  .badge { display:inline-flex; align-items:center; gap:4px; font-size:12px; background:#e5f6ec; color:var(--green); border-radius:10px; padding:2px 8px; margin-left:6px; }
+  .times { background:#f7f3ff; border-radius:10px; padding:8px 10px; font-size:13px; margin:8px 0; }
+  .times div { margin:2px 0; }
+  .route { display:flex; align-items:center; justify-content:space-between; font-size:14px; margin:10px 0; }
+  .seg { text-align:center; flex:1; }
+  .seg b { display:block; font-size:15px; }
+  .seg small { color:var(--muted); font-size:11px; }
+  .arrow { color:var(--purple); font-weight:700; }
+  .fare { display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
+  .price { font-size:20px; font-weight:800; }
+  .price s { color:var(--muted); font-weight:500; font-size:15px; margin-right:6px; }
+  .up { color:var(--red); } .down { color:var(--green); }
+  .match { background:var(--purple); color:#fff; border-radius:10px; padding:3px 10px; font-size:12px; font-weight:600; }
+  .actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .actions button { padding:11px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; border:2px solid var(--purple); background:#fff; color:var(--purple); }
+  .actions .accept { background:var(--purple); color:#fff; }
+  .actions .reject { border-color:var(--red); color:var(--red); }
+  .panel { background:#faf8ff; border:1px dashed var(--purple); border-radius:10px; padding:8px; margin-top:10px; font-size:13px; }
+  .panel .msgs { max-height:140px; overflow:auto; margin-bottom:6px; }
+  .panel input { width:70%; padding:8px; border:1px solid #ccc; border-radius:8px; }
+  .panel button { padding:8px 12px; border:0; border-radius:8px; background:var(--purple); color:#fff; }
+  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:10px 16px; border-radius:20px; font-size:13px; display:none; max-width:90%; }
+  .empty { text-align:center; color:var(--muted); padding:30px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Host mode</h1>
+  <p id="sub">Log in as a demo host to see incoming guest requests.</p>
+  <div class="login">
+    <select id="phone">
+      <option value="+919000000008">Kiran Rao (host, bike)</option>
+      <option value="+919000000001">Ravi Kumar (host, car)</option>
+    </select>
+    <button id="loginBtn">Login (OTP 123456)</button>
+  </div>
+</header>
+<main>
+  <div class="metrics" id="metrics"></div>
+  <h2 id="qaTitle">Quick action</h2>
+  <div id="cards"><div class="empty">Not logged in.</div></div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const API = '';
+let token = sessionStorage.getItem('hoprHostToken') || '';
+const $ = id => document.getElementById(id);
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3500); }
+async function api(path, opts = {}) {
+  opts.headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API + path, opts);
+  let body = null; try { body = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error((body && body.message) || ('HTTP ' + res.status));
+  return body;
+}
+async function login() {
+  const phone = $('phone').value;
+  await api('/api/v1/auth/send-otp', {method: 'POST', body: JSON.stringify({phone})});
+  const r = await api('/api/v1/auth/verify-otp', {method: 'POST', body: JSON.stringify({phone, otp: '123456'})});
+  token = r.accessToken; sessionStorage.setItem('hoprHostToken', token);
+  $('sub').textContent = 'Logged in as ' + r.user.fullName;
+  await load();
+}
+async function load() {
+  try {
+    const dash = await api('/api/v1/users/active-mode', {method: 'PATCH', body: JSON.stringify({mode: 'HOST'})});
+    const h = dash.host;
+    $('metrics').innerHTML =
+      `<div class="metric"><b>\u20B9${h.fuelCostRecovered}</b><span>Fuel cost recovered</span></div>` +
+      `<div class="metric"><b>${h.activeSeatsPublished}</b><span>Seats published</span></div>` +
+      `<div class="metric"><b>${h.pendingQuickActions}</b><span>Pending requests</span></div>`;
+    const qa = await api('/api/v1/host/quick-actions');
+    $('qaTitle').textContent = qa.label;
+    $('cards').innerHTML = qa.requests.length ? qa.requests.map(card).join('') : '<div class="empty">No pending requests \uD83C\uDF89</div>';
+  } catch (e) { toast(e.message); }
+}
+function initials(n) { return (n || '?').split(' ').map(x => x[0]).slice(0, 2).join(''); }
+function card(c) {
+  const trend = c.fareTrend === 'UP' ? '<span class="up">\u25B2</span>' : c.fareTrend === 'DOWN' ? '<span class="down">\u25BC</span>' : '';
+  return `<div class="card" id="b${c.bookingId}">
+    <div class="row"><div class="when">${c.rideDate} \u00B7 Your ride ${c.hostRideTime}</div><span class="match">${c.matchLabel}</span></div>
+    <div class="guest"><div class="avatar">${initials(c.guestName)}</div>
+      <div><span class="name">${c.guestName}</span>${c.corporateVerified ? `<span class="badge">\u2714 ${c.guestCompanyName}</span>` : ''}</div></div>
+    <div class="times"><div>\u23F0 ${c.guestPreferredDepartureLabel || ''}</div><div>\uD83D\uDE97 ${c.hostEstimatedArrivalLabel || ''}</div></div>
+    <div class="route">
+      <div class="seg"><b>${c.pickupWalkLabel}</b><small>walk</small></div><span class="arrow">\u2192</span>
+      <div class="seg"><b>${c.sharedRideLabel}</b><small>${c.vehicleType === 'BIKE' ? '\uD83C\uDFCD ride' : '\uD83D\uDE97 ride'}</small></div><span class="arrow">\u2192</span>
+      <div class="seg"><b>${c.dropWalkLabel}</b><small>walk</small></div>
+    </div>
+    <div class="fare"><div class="price"><s>\u20B9${Number(c.baseFare)}</s>\u20B9${Number(c.dynamicFare)} ${trend}</div><small>Fuel-share fare</small></div>
+    <div class="actions">
+      <button onclick="toggleChat(${c.bookingId})">\uD83D\uDCAC Chat</button>
+      <button onclick="call(${c.bookingId})">\uD83D\uDCDE Call</button>
+      <button class="reject" onclick="respond(${c.bookingId},'REJECT')">Reject</button>
+      <button class="accept" onclick="respond(${c.bookingId},'ACCEPT')">Accept</button>
+    </div>
+    <div class="panel" id="chat${c.bookingId}" style="display:none"><div class="msgs" id="msgs${c.bookingId}"></div>
+      <input id="in${c.bookingId}" placeholder="Message the guest..."> <button onclick="sendChat(${c.bookingId})">Send</button></div>
+  </div>`;
+}
+async function toggleChat(id) {
+  const p = $('chat' + id); p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  if (p.style.display === 'block') refreshChat(id);
+}
+async function refreshChat(id) {
+  try {
+    const list = await api('/api/v1/bookings/' + id + '/chat');
+    $('msgs' + id).innerHTML = list.length ? list.map(m => `<div><b>${m.senderName}:</b> ${m.content}</div>`).join('') : '<i>No messages yet</i>';
+  } catch (e) { toast(e.message); }
+}
+async function sendChat(id) {
+  const input = $('in' + id); if (!input.value.trim()) return;
+  try { await api('/api/v1/bookings/' + id + '/chat', {method: 'POST', body: JSON.stringify({content: input.value})}); input.value = ''; refreshChat(id); }
+  catch (e) { toast(e.message); }
+}
+async function call(id) {
+  try { const r = await api('/api/v1/bookings/' + id + '/masked-call', {method: 'POST'}); toast('Dial ' + r.virtualNumber + ' (masked, valid 15 min)'); }
+  catch (e) { toast(e.message); }
+}
+async function respond(id, action) {
+  try { await api('/api/v1/bookings/' + id + '/respond', {method: 'PATCH', body: JSON.stringify({action})}); toast(action === 'ACCEPT' ? 'Request accepted' : 'Request rejected'); load(); }
+  catch (e) { toast(e.message); }
+}
+$('loginBtn').onclick = () => login().catch(e => toast(e.message));
+if (token) load();
+</script>
+</body>
+</html>

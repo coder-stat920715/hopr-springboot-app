@@ -64,7 +64,7 @@ public class BookingService {
         RideMatchingService.MatchDetail m = matching.evaluate(ride, cmd.pickup(), cmd.drop())
                 .orElseThrow(() -> new BadRequestException(
                         "This ride does not serve your pickup/drop points (route mismatch or too far to walk)"));
-        BigDecimal fare = m.fare().discounted();
+        BigDecimal fare = m.dynamicFare();
         if (wallets.getOrCreate(guestId).getBalance().compareTo(fare) < 0) {
             throw new BadRequestException("Insufficient Hopr wallet balance. Required: " + fare + ". Please top up.");
         }
@@ -81,16 +81,24 @@ public class BookingService {
                 .pickupWindowStart(m.pickupWindowStart())
                 .pickupWindowEnd(m.pickupWindowEnd())
                 .standardFare(m.fare().standard())
-                .discountedFare(fare)
+                .discountedFare(m.fare().discounted())
+                .dynamicFare(fare)
+                .guestPreferredDepartureTime(cmd.preferredDepartureTime())
                 .build());
         notifications.notifyUser(ride.getHost().getId(), guest.getFullName() + " requested a seat on ride #" + ride.getId());
         return mapper.booking(b);
     }
 
     /** Command object so the service does not depend on web DTO validation annotations. */
-    public record BookingRequestCommand(Long rideId, com.hopr.entity.GeoPoint pickup, com.hopr.entity.GeoPoint drop) {
+    public record BookingRequestCommand(Long rideId, com.hopr.entity.GeoPoint pickup, com.hopr.entity.GeoPoint drop,
+                                        java.time.LocalTime preferredDepartureTime) {
+        public BookingRequestCommand(Long rideId, com.hopr.entity.GeoPoint pickup, com.hopr.entity.GeoPoint drop) {
+            this(rideId, pickup, drop, null);
+        }
+
         public static BookingRequestCommand from(BookingRequest r) {
-            return new BookingRequestCommand(r.rideId(), r.pickup().toGeoPoint(), r.drop().toGeoPoint());
+            return new BookingRequestCommand(r.rideId(), r.pickup().toGeoPoint(), r.drop().toGeoPoint(),
+                    r.preferredDepartureTime());
         }
     }
 
@@ -141,7 +149,7 @@ public class BookingService {
         ride.setSeatsLeft(ride.getSeatsLeft() - 1);
         rides.saveAndFlush(ride); // optimistic-lock check happens here
 
-        wallets.holdEscrow(b.getGuest().getId(), b.getDiscountedFare(), b.getId());
+        wallets.holdEscrow(b.getGuest().getId(), b.effectiveFare(), b.getId());
         b.setEscrowHeld(true);
         b.setStatus(BookingStatus.CONFIRMED);
         b.setRespondedAt(Instant.now());
@@ -171,7 +179,7 @@ public class BookingService {
         }
         LocalDateTime departure = LocalDateTime.of(ride.getRideDate(), ride.getDepartureTime());
         long minutesLeft = Duration.between(LocalDateTime.now(clock), departure).toMinutes();
-        BigDecimal fare = b.getDiscountedFare();
+        BigDecimal fare = b.effectiveFare();
         BigDecimal penalty = BigDecimal.ZERO.setScale(2);
         if (minutesLeft < props.getCancellation().getFreeWindowMinutes()) {
             penalty = fare.multiply(BigDecimal.valueOf(props.getCancellation().getPenaltyPercent()))

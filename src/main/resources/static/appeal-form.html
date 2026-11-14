@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hopr - Account Login Appeal Form</title>
+<style>
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f3f0fa; color:#1d1433; }
+  .wrap { max-width:560px; margin:0 auto; padding:16px; }
+  .banner { background:linear-gradient(135deg,#6b2fd6,#4b1fa0); color:#fff; border-radius:14px; padding:18px; margin-bottom:14px; }
+  .banner h1 { margin:0 0 4px; font-size:21px; } .banner p { margin:0; font-size:13px; opacity:.9; }
+  form { background:#fff; border-radius:14px; padding:16px; box-shadow:0 3px 12px rgba(80,40,160,.12); }
+  label { display:block; font-weight:600; font-size:14px; margin:14px 0 6px; }
+  .req::after { content:" *"; color:#d6334a; }
+  input[type=text], input[type=tel], select, textarea { width:100%; padding:10px; border:1px solid #cfc8e3; border-radius:8px; font-size:15px; font-family:inherit; }
+  textarea { min-height:130px; resize:vertical; }
+  .counter { text-align:right; font-size:12px; color:#6d6585; margin-top:2px; }
+  .radio { display:flex; gap:16px; flex-wrap:wrap; }
+  .radio label { font-weight:500; margin:0; display:flex; align-items:center; gap:6px; }
+  button { margin-top:18px; width:100%; padding:13px; border:0; border-radius:10px; background:#6b2fd6; color:#fff; font-size:16px; font-weight:700; cursor:pointer; }
+  .msg { margin-top:12px; padding:10px; border-radius:8px; font-size:14px; display:none; }
+  .ok { background:#e5f6ec; color:#14703a; } .err { background:#fde8ec; color:#a3162d; }
+  .box { background:#fff; border-radius:14px; padding:14px; margin-top:14px; box-shadow:0 3px 12px rgba(80,40,160,.12); font-size:14px; }
+  a { color:#6b2fd6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner"><h1>Account Login Appeal Form</h1>
+    <p>Locked out of your Hopr account, device limit reached, or need to change company / city? Tell us what happened.</p></div>
+  <form id="f">
+    <label class="req" for="name">Registered Name</label>
+    <input type="text" id="name" name="registeredName" placeholder="e.g. Souptik Tat">
+
+    <label class="req" for="phone">Hopr Registered Phone Number</label>
+    <input type="tel" id="phone" name="registeredPhoneNumber" placeholder="e.g. 9038577517" required>
+
+    <label class="req" for="city">Select your registered city</label>
+    <select id="city" name="registeredCity" required><option value="">-- Select city --</option></select>
+
+    <label class="req">Select your profile type</label>
+    <div class="radio" id="types"></div>
+
+    <label for="prev">Previous Registered mobile number (if changed)</label>
+    <input type="tel" id="prev" name="previousRegisteredPhoneNumber" placeholder="Optional">
+
+    <label class="req" for="issue">Please explain the issue briefly</label>
+    <textarea id="issue" name="issueDescription" maxlength="20000" required></textarea>
+    <div class="counter"><span id="count">0</span> / 20000</div>
+
+    <label for="shots">Attach screenshots</label>
+    <input type="file" id="shots" name="screenshots" accept="image/*,application/pdf" multiple>
+
+    <input type="hidden" id="deviceId" name="deviceId">
+    <button type="submit">Submit appeal</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="box">
+    <b>Track your appeal</b><br>
+    <input type="text" id="ticket" placeholder="HPR-APL-2026-0001" style="margin:8px 0">
+    <button type="button" id="trackBtn" style="margin-top:0">Check status</button>
+    <div class="msg" id="trackMsg"></div>
+  </div>
+  <div class="box">Prefer the official form? <a id="zoho" href="https://survey.zohopublic.in/zs/ekBH9S" target="_blank" rel="noopener">Open the Zoho appeal form</a></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+['phone:registeredPhone','name:registeredName','prev:previousPhone','deviceId:deviceId'].forEach(p => {
+  const [el, q] = p.split(':'); if (params.get(q)) $(el).value = params.get(q);
+});
+$('issue').addEventListener('input', () => $('count').textContent = $('issue').value.length);
+function show(el, cls, text) { el.className = 'msg ' + cls; el.style.display = 'block'; el.textContent = text; }
+(async () => {
+  try {
+    const cfg = await (await fetch('/api/v1/appeals/config')).json();
+    cfg.cities.forEach(c => $('city').add(new Option(c.label, c.value)));
+    $('types').innerHTML = cfg.profileTypes.map((t, i) =>
+      `<label><input type="radio" name="profileType" value="${t.value}" ${i === 0 ? 'checked' : ''}> ${t.label}</label>`).join('');
+    $('zoho').href = cfg.externalFormUrl;
+    if (params.get('city')) $('city').value = params.get('city');
+    $('count').textContent = $('issue').value.length;
+  } catch (e) { show($('msg'), 'err', 'Could not load form configuration'); }
+})();
+$('f').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const fd = new FormData($('f'));
+  try {
+    const res = await fetch('/api/v1/appeals/submit', {method: 'POST', body: fd});
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.message + (body.fieldErrors ? ' ' + JSON.stringify(body.fieldErrors) : ''));
+    show($('msg'), 'ok', 'Appeal submitted. Your ticket number is ' + body.appealTicketNumber);
+    $('ticket').value = body.appealTicketNumber;
+  } catch (e) { show($('msg'), 'err', e.message); }
+});
+$('trackBtn').onclick = async () => {
+  try {
+    const res = await fetch('/api/v1/appeals/status/' + encodeURIComponent($('ticket').value.trim()));
+    const b = await res.json();
+    if (!res.ok) throw new Error(b.message);
+    show($('trackMsg'), 'ok', b.appealTicketNumber + ': ' + b.status + ' - ' + b.statusMessage + (b.adminRemarks ? ' (' + b.adminRemarks + ')' : ''));
+  } catch (e) { show($('trackMsg'), 'err', e.message); }
+};
+</script>
+</body>
+</html>

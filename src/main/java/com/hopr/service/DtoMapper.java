@@ -55,7 +55,8 @@ public class DtoMapper {
         return new UserProfile(u.getId(), u.getPhone(), u.getFullName(), u.getProfilePhotoUrl(), u.getCity(),
                 u.getCommuteMode(), LocationDto.from(u.getHome()), LocationDto.from(u.getOffice()),
                 u.getCorporateEmail(), badge(u), u.isLicenceVerified(), GeoUtil.round1(u.getRatingAverage()),
-                u.getRatingCount(), u.getReferralCode(), new HashSet<>(u.getRoles()));
+                u.getRatingCount(), u.getReferralCode(), new HashSet<>(u.getRoles()), u.isCompanyLocked(),
+                u.isCorporateEmailLocked(), u.getCorporateLockReason());
     }
 
     public VehicleResponse vehicle(Vehicle v) {
@@ -90,6 +91,7 @@ public class DtoMapper {
                 LocationDto.from(b.getPickup()), LocationDto.from(b.getDropPoint()), b.getPickupWalkMeters(),
                 b.getSharedRideKm(), b.getDropWalkMeters(), b.getMatchPercentage(),
                 window(b.getPickupWindowStart(), b.getPickupWindowEnd()), b.getStandardFare(),
-                b.getDiscountedFare(), b.isEscrowHeld(), b.getCreatedAt());
+                b.getDiscountedFare(), b.isEscrowHeld(), b.getCreatedAt(), b.getGuestPreferredDepartureTime(),
+                b.effectiveFare(), DynamicPricingService.trend(b.getDiscountedFare(), b.effectiveFare()));
     }
 }

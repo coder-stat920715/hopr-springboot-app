@@ -16,5 +16,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
 
     List<Ride> findByTemplateIdAndRideDateGreaterThanEqualAndStatus(Long templateId, LocalDate from, RideStatus status);
 
+    List<Ride> findByHostIdAndRideDateGreaterThanEqualAndStatus(Long hostId, LocalDate from, RideStatus status);
+
     boolean existsByTemplateIdAndRideDate(Long templateId, LocalDate rideDate);
 }

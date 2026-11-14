@@ -123,7 +123,7 @@ class BookingConcurrencyAndSettlementTest {
         User arjun = users.findByPhone(DataInitializer.ARJUN_HYD_GUEST).orElseThrow();
         Booking seeded = bookings.findByGuestIdOrderByCreatedAtDesc(arjun.getId()).stream()
                 .filter(b -> b.getStatus() == BookingStatus.CONFIRMED).findFirst().orElseThrow();
-        BigDecimal fare = seeded.getDiscountedFare();
+        BigDecimal fare = seeded.effectiveFare();
         Long rideId = seeded.getRide().getId();
 
         Wallet guestBefore = walletService.getOrCreate(arjun.getId());
@@ -155,11 +155,11 @@ class BookingConcurrencyAndSettlementTest {
 
         bookingService.respond(sneha.getId(), pending.getId(), BookingAction.ACCEPT);
         Wallet held = walletService.getOrCreate(arjun.getId());
-        assertThat(held.getBalance()).isEqualByComparingTo(balanceBefore.subtract(pending.getDiscountedFare()));
+        assertThat(held.getBalance()).isEqualByComparingTo(balanceBefore.subtract(pending.effectiveFare()));
 
         rideService.cancelRide(sneha.getId(), pending.getRide().getId());
         Wallet refunded = walletService.getOrCreate(arjun.getId());
         assertThat(refunded.getBalance()).isEqualByComparingTo(balanceBefore);
-        assertThat(refunded.getEscrow()).isEqualByComparingTo(held.getEscrow().subtract(pending.getDiscountedFare()));
+        assertThat(refunded.getEscrow()).isEqualByComparingTo(held.getEscrow().subtract(pending.effectiveFare()));
     }
 }

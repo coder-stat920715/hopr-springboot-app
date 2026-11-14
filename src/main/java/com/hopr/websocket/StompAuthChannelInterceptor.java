@@ -25,6 +25,7 @@ import java.util.List;
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String TRIP_TOPIC = "/topic/trips/";
+    private static final String BOOKING_TOPIC = "/topic/bookings/";
 
     private final JwtService jwtService;
     private final TripAccessService tripAccess;
@@ -48,6 +49,21 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             accessor.setUser(new UsernamePasswordAuthenticationToken(user, null, authorities));
         } else if (StompCommand.SUBSCRIBE.equals(command)) {
             String destination = accessor.getDestination();
+            if (destination != null && destination.startsWith(BOOKING_TOPIC)) {
+                if (!(accessor.getUser() instanceof Authentication auth) || !(auth.getPrincipal() instanceof AuthUser user)) {
+                    throw new MessagingException("Not authenticated");
+                }
+                String rest = destination.substring(BOOKING_TOPIC.length());
+                long bookingId;
+                try {
+                    bookingId = Long.parseLong(rest.contains("/") ? rest.substring(0, rest.indexOf('/')) : rest);
+                } catch (NumberFormatException ex) {
+                    throw new MessagingException("Invalid booking topic");
+                }
+                if (!tripAccess.isBookingParticipant(bookingId, user.id())) {
+                    throw new MessagingException("You are not a participant of this booking");
+                }
+            }
             if (destination != null && destination.startsWith(TRIP_TOPIC)) {
                 if (!(accessor.getUser() instanceof Authentication auth) || !(auth.getPrincipal() instanceof AuthUser user)) {
                     throw new MessagingException("Not authenticated");

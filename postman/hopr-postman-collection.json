@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Hopr API - End-to-End Test Suite",
+    "name": "Hopr API - End-to-End Test Suite (v2)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": "Complete scripted test suite for the Hopr Spring Boot backend.\n\n1. Start the app (mvn spring-boot:run, dev profile).\n2. Import this collection and the environment.\n3. Run folder 0 first, then folders 1-8 in order (Collection Runner: Run collection, keep order, no delay needed).\n4. Every request has a description with steps and expected results, and test scripts that assert them.\n\nRestart the application before re-running the whole suite - state (wallets, bookings) is cumulative."
   },
@@ -468,6 +468,262 @@
                   "pm.test('Phone matches', () => pm.expect(j.user.phone).to.eql('+919000000006'));",
                   "pm.collectionVariables.set('ananyaToken', j.accessToken);",
                   "pm.collectionVariables.set('ananyaId', j.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Kiran (+919000000008)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** Authenticate the seeded user 'kiran' and store the JWT in the collection variable {{kiranToken}}.\n\n**Steps:**\n1. The pre-request script first calls POST /auth/send-otp for this phone (OTP is always 123456 in the dev profile).\n2. Click Send. The test script saves accessToken to {{kiranToken}} and the numeric user id to {{kiranId}}.\n\n**Expected result:**\n- HTTP 200, JSON with accessToken/refreshToken and the user profile.\n- All later requests of this user use the saved token automatically.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919000000008\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({url: pm.collectionVariables.get('baseUrl') + '/api/v1/auth/send-otp', method: 'POST',",
+                  "  header: {'Content-Type': 'application/json'},",
+                  "  body: {mode: 'raw', raw: JSON.stringify({phone: '+919000000008'})}}, (err) => { if (err) console.log(err); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Access + refresh token returned', () => { pm.expect(j.accessToken).to.be.a('string'); pm.expect(j.refreshToken).to.be.a('string'); });",
+                  "pm.test('Phone matches', () => pm.expect(j.user.phone).to.eql('+919000000008'));",
+                  "pm.collectionVariables.set('kiranToken', j.accessToken);",
+                  "pm.collectionVariables.set('kiranId', j.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Rajan (+919000000009)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** Authenticate the seeded user 'rajan' and store the JWT in the collection variable {{rajanToken}}.\n\n**Steps:**\n1. The pre-request script first calls POST /auth/send-otp for this phone (OTP is always 123456 in the dev profile).\n2. Click Send. The test script saves accessToken to {{rajanToken}} and the numeric user id to {{rajanId}}.\n\n**Expected result:**\n- HTTP 200, JSON with accessToken/refreshToken and the user profile.\n- All later requests of this user use the saved token automatically.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919000000009\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({url: pm.collectionVariables.get('baseUrl') + '/api/v1/auth/send-otp', method: 'POST',",
+                  "  header: {'Content-Type': 'application/json'},",
+                  "  body: {mode: 'raw', raw: JSON.stringify({phone: '+919000000009'})}}, (err) => { if (err) console.log(err); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Access + refresh token returned', () => { pm.expect(j.accessToken).to.be.a('string'); pm.expect(j.refreshToken).to.be.a('string'); });",
+                  "pm.test('Phone matches', () => pm.expect(j.user.phone).to.eql('+919000000009'));",
+                  "pm.collectionVariables.set('rajanToken', j.accessToken);",
+                  "pm.collectionVariables.set('rajanId', j.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Neha (+919000000010)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** Authenticate the seeded user 'neha' and store the JWT in the collection variable {{nehaToken}}.\n\n**Steps:**\n1. The pre-request script first calls POST /auth/send-otp for this phone (OTP is always 123456 in the dev profile).\n2. Click Send. The test script saves accessToken to {{nehaToken}} and the numeric user id to {{nehaId}}.\n\n**Expected result:**\n- HTTP 200, JSON with accessToken/refreshToken and the user profile.\n- All later requests of this user use the saved token automatically.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919000000010\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({url: pm.collectionVariables.get('baseUrl') + '/api/v1/auth/send-otp', method: 'POST',",
+                  "  header: {'Content-Type': 'application/json'},",
+                  "  body: {mode: 'raw', raw: JSON.stringify({phone: '+919000000010'})}}, (err) => { if (err) console.log(err); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Access + refresh token returned', () => { pm.expect(j.accessToken).to.be.a('string'); pm.expect(j.refreshToken).to.be.a('string'); });",
+                  "pm.test('Phone matches', () => pm.expect(j.user.phone).to.eql('+919000000010'));",
+                  "pm.collectionVariables.set('nehaToken', j.accessToken);",
+                  "pm.collectionVariables.set('nehaId', j.user.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Souptik (+919038577517)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** Authenticate the seeded user 'souptik' and store the JWT in the collection variable {{souptikToken}}.\n\n**Steps:**\n1. The pre-request script first calls POST /auth/send-otp for this phone (OTP is always 123456 in the dev profile).\n2. Click Send. The test script saves accessToken to {{souptikToken}} and the numeric user id to {{souptikId}}.\n\n**Expected result:**\n- HTTP 200, JSON with accessToken/refreshToken and the user profile.\n- All later requests of this user use the saved token automatically.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919038577517\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({url: pm.collectionVariables.get('baseUrl') + '/api/v1/auth/send-otp', method: 'POST',",
+                  "  header: {'Content-Type': 'application/json'},",
+                  "  body: {mode: 'raw', raw: JSON.stringify({phone: '+919038577517'})}}, (err) => { if (err) console.log(err); });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Access + refresh token returned', () => { pm.expect(j.accessToken).to.be.a('string'); pm.expect(j.refreshToken).to.be.a('string'); });",
+                  "pm.test('Phone matches', () => pm.expect(j.user.phone).to.eql('+919038577517'));",
+                  "pm.collectionVariables.set('souptikToken', j.accessToken);",
+                  "pm.collectionVariables.set('souptikId', j.user.id);"
                 ]
               }
             }
@@ -1166,7 +1422,7 @@
                   "const card = j.find(c => String(c.rideId) === String(pm.collectionVariables.get('lifeRideId')));",
                   "pm.test('New ride is matched', () => pm.expect(card).to.exist);",
                   "pm.test('Discounted < standard', () => pm.expect(card.discountedFare).to.be.below(card.standardFare));",
-                  "pm.collectionVariables.set('fareQuoted', card.discountedFare);"
+                  "pm.collectionVariables.set('fareQuoted', card.dynamicFare);"
                 ]
               }
             }
@@ -1194,7 +1450,7 @@
               ],
               "raw": "{{baseUrl}}/api/v1/bookings/request"
             },
-            "description": "**Purpose:** Guest sends a seat request. Nothing is reserved yet.\n\n**Steps:**\n1. Send the request.\n\n**Expected result:**\n- HTTP 201, status PENDING, escrowHeld false.\n- discountedFare equals the quoted fare.\n- {{lifeBookingId}} stored.\n",
+            "description": "**Purpose:** Guest sends a seat request. Nothing is reserved yet.\n\n**Steps:**\n1. Send the request.\n\n**Expected result:**\n- HTTP 201, status PENDING, escrowHeld false.\n- dynamicFare (the amount charged) equals the quoted fare.\n- {{lifeBookingId}} stored.\n",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1225,10 +1481,10 @@
                   "const j = pm.response.json();",
                   "pm.test('Pending', () => pm.expect(j.status).to.eql('PENDING'));",
                   "pm.test('Escrow not yet held', () => pm.expect(j.escrowHeld).to.be.false);",
-                  "pm.test('Fare equals quote', () => pm.expect(Number(j.discountedFare)).to.eql(Number(pm.collectionVariables.get('fareQuoted'))));",
+                  "pm.test('Fare equals quote', () => pm.expect(Number(j.dynamicFare)).to.eql(Number(pm.collectionVariables.get('fareQuoted'))));",
                   "pm.test('Walk and window details', () => { pm.expect(j.pickupWalkMeters).to.be.a('number'); pm.expect(j.pickupWindow).to.be.a('string'); });",
                   "pm.collectionVariables.set('lifeBookingId', j.id);",
-                  "pm.collectionVariables.set('lifeFare', j.discountedFare);"
+                  "pm.collectionVariables.set('lifeFare', j.dynamicFare);"
                 ]
               }
             }
@@ -2703,7 +2959,7 @@
                   "pm.test('Status is 201', () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set('cBookingId', j.id);",
-                  "pm.collectionVariables.set('cFare', j.discountedFare);"
+                  "pm.collectionVariables.set('cFare', j.dynamicFare);"
                 ]
               }
             }
@@ -3448,7 +3704,7 @@
                   "pm.test('Status is 201', () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
                   "pm.collectionVariables.set('lateBookingId', j.id);",
-                  "pm.collectionVariables.set('lateFare', j.discountedFare);"
+                  "pm.collectionVariables.set('lateFare', j.dynamicFare);"
                 ]
               }
             }
@@ -7096,6 +7352,2129 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status is 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Host mode and Quick Action requests",
+      "description": "Uses Kiran Rao (bike host), Rajan Dutta and Neha Sharma (seeded pending requests).",
+      "item": [
+        {
+          "name": "9.1 Kiran - switch to HOST mode (dashboard metrics)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "active-mode"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/active-mode"
+            },
+            "description": "**Purpose:** Persist the active commuting mode and get tailored dashboard metrics.\n\n**Steps:**\n1. Send as Kiran (bike host).\n\n**Expected result:**\n- mode HOST, host metrics: fuelCostRecovered, activeSeatsPublished, pendingQuickActions >= 1.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"HOST\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Host mode', () => pm.expect(j.mode).to.eql('HOST'));",
+                  "pm.test('Metrics', () => { pm.expect(j.host.pendingQuickActions).to.be.at.least(1); pm.expect(j.host.activeSeatsPublished).to.be.a('number'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.2 Kiran - Quick action inbox",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "host",
+                "quick-actions"
+              ],
+              "raw": "{{baseUrl}}/api/v1/host/quick-actions"
+            },
+            "description": "**Purpose:** Prioritised pending guest requests with the full trip comparison.\n\n**Steps:**\n1. Send as Kiran.\n\n**Expected result:**\n- label 'Quick action (N)'.\n- Rajan Dutta (TCS, green badge): Wants to leave at 09:00 AM / You'll arrive by 08:34 AM.\n- 19 m -> 19.4 km -> 498 m, BIKE.\n- baseFare 79 -> dynamicFare 90 (fareTrend UP), match 83 (> 80% match).\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const r = j.requests.find(x => x.guestName === 'Rajan Dutta');",
+                  "pm.test('Label', () => pm.expect(j.label).to.eql('Quick action (' + j.count + ')'));",
+                  "pm.test('Rajan card present', () => pm.expect(r).to.exist);",
+                  "pm.test('Corporate trust', () => { pm.expect(r.guestCompanyName).to.eql('TCS'); pm.expect(r.corporateVerified).to.be.true; });",
+                  "pm.test('Timing comparison', () => { pm.expect(r.guestPreferredDepartureLabel).to.eql('Wants to leave at 09:00 AM'); pm.expect(r.hostEstimatedArrivalLabel).to.eql(\"You'll arrive by 08:34 AM\"); });",
+                  "pm.test('Walk-and-ride breakdown', () => { pm.expect(r.pickupWalkLabel).to.eql('19 m'); pm.expect(r.sharedRideLabel).to.eql('19.4 km'); pm.expect(r.dropWalkLabel).to.eql('498 m'); pm.expect(r.vehicleType).to.eql('BIKE'); });",
+                  "pm.test('Dynamic pricing', () => { pm.expect(Number(r.baseFare)).to.eql(79); pm.expect(Number(r.dynamicFare)).to.eql(90); pm.expect(r.fareTrend).to.eql('UP'); });",
+                  "pm.test('Match badge', () => { pm.expect(r.matchPercentage).to.eql(83); pm.expect(r.matchLabel).to.eql('> 80% match'); });",
+                  "pm.collectionVariables.set('qaBookingRajan', r.bookingId);",
+                  "const n = j.requests.find(x => x.guestName === 'Neha Sharma');",
+                  "if (n) pm.collectionVariables.set('qaBookingNeha', n.bookingId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.3 Rajan - message the host BEFORE acceptance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "chat"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/chat"
+            },
+            "description": "**Purpose:** Pre-acceptance chat from the Quick Action card.\n\n**Steps:**\n1. Send as Rajan.\n\n**Expected result:**\n- 201, senderName Rajan Dutta.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{rajanToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Can you wait till 9?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Sender', () => pm.expect(pm.response.json().senderName).to.eql('Rajan Dutta'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.4 Kiran - reply in the same thread",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "chat"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/chat"
+            },
+            "description": "**Purpose:** Host reply.\n\n**Steps:**\n1. Send as Kiran.\n\n**Expected result:**\n- 201.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"I leave at 8:30, sorry.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.5 Kiran - chat history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "chat"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/chat"
+            },
+            "description": "**Purpose:** Both messages are visible.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- Two messages in order.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Two messages', () => pm.expect(j.length).to.be.at.least(2));",
+                  "pm.test('Order', () => pm.expect(j[0].senderName).to.eql('Rajan Dutta'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.6 Kiran - masked call to the guest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "masked-call"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/masked-call"
+            },
+            "description": "**Purpose:** Privacy-masked call bridge before acceptance.\n\n**Steps:**\n1. Send as Kiran (no body).\n\n**Expected result:**\n- virtualNumber +9180..., no real phone number leaked.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Virtual number', () => pm.expect(j.virtualNumber).to.match(/^\\+9180/));",
+                  "pm.test('Not leaked', () => pm.expect(JSON.stringify(j)).to.not.include('9000000009'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.7 Arjun - chat on someone else's request (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "chat"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/chat"
+            },
+            "description": "**Purpose:** Only the host and the requesting guest may chat.\n\n**Steps:**\n1. Send as Arjun.\n\n**Expected result:**\n- HTTP 403.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{arjunToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"hi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.8 Kiran - REJECT Neha's request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingNeha}}",
+                "respond"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingNeha}}/respond"
+            },
+            "description": "**Purpose:** Reject from the Quick Action card.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- REJECTED.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"REJECT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Rejected', () => pm.expect(pm.response.json().status).to.eql('REJECTED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.9 Kiran - ACCEPT Rajan's request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{qaBookingRajan}}",
+                "respond"
+              ],
+              "raw": "{{baseUrl}}/api/v1/bookings/{{qaBookingRajan}}/respond"
+            },
+            "description": "**Purpose:** Thread-safe seat allocation (@Version) + escrow of the DYNAMIC fare.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- CONFIRMED, escrowHeld true, dynamicFare 90.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"ACCEPT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Confirmed', () => pm.expect(j.status).to.eql('CONFIRMED'));",
+                  "pm.test('Dynamic fare charged', () => pm.expect(Number(j.dynamicFare)).to.eql(90));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.10 Rajan - escrow holds the dynamic fare",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "wallet"
+              ],
+              "raw": "{{baseUrl}}/api/v1/wallet"
+            },
+            "description": "**Purpose:** Wallet check.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- escrowBalance 90, balance 910.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{rajanToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Escrow 90', () => pm.expect(Number(j.escrowBalance)).to.eql(90));",
+                  "pm.test('Balance 910', () => pm.expect(Number(j.balance)).to.eql(910));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.11 Kiran - inbox is empty now",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "host",
+                "quick-actions"
+              ],
+              "raw": "{{baseUrl}}/api/v1/host/quick-actions"
+            },
+            "description": "**Purpose:** Both requests were answered.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- count 0, label 'Quick action (0)'.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Empty', () => { pm.expect(j.count).to.eql(0); pm.expect(j.label).to.eql('Quick action (0)'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.12 Kiran - host dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "host",
+                "dashboard"
+              ],
+              "raw": "{{baseUrl}}/api/v1/host/dashboard"
+            },
+            "description": "**Purpose:** Host metrics.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- pendingQuickActions 0.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{kiranToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('No pending', () => pm.expect(pm.response.json().host.pendingQuickActions).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.13 Rajan - HOST mode without a vehicle (negative)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "active-mode"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/active-mode"
+            },
+            "description": "**Purpose:** A vehicle is required.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 400.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{rajanToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"HOST\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9.14 Arjun - switch to GUEST mode",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "active-mode"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/active-mode"
+            },
+            "description": "**Purpose:** Guest dashboard.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- mode GUEST with wallet metrics.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{arjunToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"GUEST\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Guest', () => pm.expect(j.mode).to.eql('GUEST'));",
+                  "pm.test('Wallet metric', () => pm.expect(j.guest.walletBalance).to.be.a('number'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10. Device account limit guard",
+      "description": "Dev data: DEVICE-SOUPTIK-001 is ACTIVE-bound to +919038577517.",
+      "item": [
+        {
+          "name": "10.1 Second mobile number on a bound device (send-otp)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "send-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp"
+            },
+            "description": "**Purpose:** DEVICE-SOUPTIK-001 is bound to Souptik's account. A different number on the same device is blocked.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 403, errorCode DEVICE_ACCOUNT_LIMIT_REACHED, message 'Device account limit reached'.\n- ctaButtonText 'Submit an appeal', externalAppealUrl, internalAppealEndpoint, appealWebFormUrl.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919876500001\",\n  \"deviceId\": \"DEVICE-SOUPTIK-001\",\n  \"deviceModel\": \"Pixel 8\",\n  \"osPlatform\": \"ANDROID\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "const j = pm.response.json();",
+                  "pm.test('Error code', () => pm.expect(j.errorCode).to.eql('DEVICE_ACCOUNT_LIMIT_REACHED'));",
+                  "pm.test('Message', () => pm.expect(j.message).to.eql('Device account limit reached'));",
+                  "pm.test('Appeal CTA', () => { pm.expect(j.ctaButtonText).to.eql('Submit an appeal'); pm.expect(j.externalAppealUrl).to.eql('https://survey.zohopublic.in/zs/ekBH9S'); pm.expect(j.internalAppealEndpoint).to.eql('/api/v1/appeals/submit'); pm.expect(j.appealWebFormUrl).to.eql('/appeal-form.html'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10.2 Same check on verify-otp (X-Device-Id header)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Device-Id",
+                "value": "DEVICE-SOUPTIK-001"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** The device id may be sent as the X-Device-Id header.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 403 with the same structured body.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919876500001\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Code', () => pm.expect(pm.response.json().errorCode).to.eql('DEVICE_ACCOUNT_LIMIT_REACHED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10.3 Souptik - send OTP on his own device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Device-Id",
+                "value": "DEVICE-SOUPTIK-001"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "send-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp"
+            },
+            "description": "**Purpose:** The owner is allowed on his own device.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 200.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919038577517\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10.4 Souptik - verify OTP on his own device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Device-Id",
+                "value": "DEVICE-SOUPTIK-001"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp"
+            },
+            "description": "**Purpose:** Login succeeds; token stored.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 200.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919038577517\",\n  \"otp\": \"123456\",\n  \"deviceModel\": \"Redmi Note 11\",\n  \"osPlatform\": \"ANDROID\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('souptikToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11. Locked corporate profile (HTTP 423)",
+      "description": "Run before the appeal folder.",
+      "item": [
+        {
+          "name": "11.1 Souptik - profile shows the corporate lock",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/me"
+            },
+            "description": "**Purpose:** Locked profile.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- Cognizant, souptik.tat@cognizant.com, KOLKATA, companyLocked true.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Cognizant', () => pm.expect(j.corporateBadge.companyName).to.eql('Cognizant'));",
+                  "pm.test('Locked', () => { pm.expect(j.companyLocked).to.be.true; pm.expect(j.corporateEmailLocked).to.be.true; });",
+                  "pm.test('Kolkata', () => pm.expect(j.city).to.eql('KOLKATA'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.2 Souptik - company change while locked (HTTP 423)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "request"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/request"
+            },
+            "description": "**Purpose:** Locked profile: the API answers 423 with a pre-filled appeal payload.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 423, errorCode COMPANY_UPDATE_LOCKED, prefilledAppeal (name, phone, city, profile type, issue text).\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCompanyName\": \"Capgemini\",\n  \"newCorporateEmail\": \"souptik.tat@capgemini.com\",\n  \"newCity\": \"HYDERABAD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 423', () => pm.response.to.have.status(423));",
+                  "const j = pm.response.json();",
+                  "pm.test('Locked code', () => pm.expect(j.errorCode).to.eql('COMPANY_UPDATE_LOCKED'));",
+                  "pm.test('Prefilled appeal', () => { pm.expect(j.prefilledAppeal.registeredName).to.eql('Souptik Tat'); pm.expect(j.prefilledAppeal.registeredPhoneNumber).to.eql('9038577517'); });",
+                  "pm.test('Appeal links', () => { pm.expect(j.internalAppealEndpoint).to.eql('/api/v1/appeals/submit'); pm.expect(j.externalAppealUrl).to.include('zohopublic'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.3 Souptik - change city through profile while locked (HTTP 423)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "profile"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/profile"
+            },
+            "description": "**Purpose:** The city is locked together with the company.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 423.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"HYDERABAD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 423', () => pm.response.to.have.status(423));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12. Account login appeals and admin resolution",
+      "description": "Public endpoints + ADMIN resolution with automated unlocks.",
+      "item": [
+        {
+          "name": "12.1 Appeal form configuration (public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "config"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/config"
+            },
+            "description": "**Purpose:** Metadata for rendering the appeal form - no JWT needed.\n\n**Steps:**\n1. Send without a token.\n\n**Expected result:**\n- externalFormUrl https://survey.zohopublic.in/zs/ekBH9S, 7 cities, 2 profile types, maxIssueLength 20000.\n",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Zoho url', () => pm.expect(j.externalFormUrl).to.eql('https://survey.zohopublic.in/zs/ekBH9S'));",
+                  "pm.test('Cities', () => pm.expect(j.cities.length).to.eql(7));",
+                  "pm.test('Max length', () => pm.expect(j.maxIssueLength).to.eql(20000));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.2 Submit appeal - JSON (public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "submit"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/submit"
+            },
+            "description": "**Purpose:** Locked-out users can appeal without a JWT.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 201, ticket HPR-APL-<year>-000N, status SUBMITTED.\n- {{appealId}} and {{appealTicket}} stored.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registeredName\": \"Souptik Tat\",\n  \"registeredPhoneNumber\": \"9038577517\",\n  \"registeredCity\": \"KOLKATA\",\n  \"profileType\": \"HOST_RIDE_GIVER\",\n  \"previousRegisteredPhoneNumber\": \"\",\n  \"issueDescription\": \"I moved from Cognizant Kolkata to Capgemini Hyderabad and need to change my company, e-mail and city.\",\n  \"deviceId\": \"DEVICE-SOUPTIK-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('Ticket format', () => pm.expect(j.appealTicketNumber).to.match(/^HPR-APL-\\d{4}-\\d{4}$/));",
+                  "pm.test('Submitted', () => pm.expect(j.status).to.eql('SUBMITTED'));",
+                  "pm.collectionVariables.set('appealId', j.id);",
+                  "pm.collectionVariables.set('appealTicket', j.appealTicketNumber);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.3 Submit appeal - multipart with screenshot (public)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "submit"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/submit"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "registeredName",
+                  "value": "Souptik Tat",
+                  "type": "text"
+                },
+                {
+                  "key": "registeredPhoneNumber",
+                  "value": "9038577517",
+                  "type": "text"
+                },
+                {
+                  "key": "registeredCity",
+                  "value": "Kolkata",
+                  "type": "text"
+                },
+                {
+                  "key": "profileType",
+                  "value": "Host - Ride Giver",
+                  "type": "text"
+                },
+                {
+                  "key": "previousRegisteredPhoneNumber",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "issueDescription",
+                  "value": "Device account limit reached after reinstalling the app. Please unlock.",
+                  "type": "text"
+                },
+                {
+                  "key": "deviceId",
+                  "value": "DEVICE-SOUPTIK-001",
+                  "type": "text"
+                },
+                {
+                  "key": "screenshots",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "description": "**Purpose:** Same form as multipart/form-data. In Postman pick one or more image/PDF files for the 'screenshots' field (max 5, 5 MB each); the request also works with no file.\n\n**Steps:**\n1. Select a screenshot file (optional).\n2. Send.\n\n**Expected result:**\n- HTTP 201 with screenshotAttachments listing stored files.\n",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Ticket', () => pm.expect(pm.response.json().appealTicketNumber).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.4 Submit appeal - validation (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "submit"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/submit"
+            },
+            "description": "**Purpose:** Issue text must be 10-20000 characters.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 400.\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registeredPhoneNumber\": \"9038577517\",\n  \"registeredCity\": \"KOLKATA\",\n  \"profileType\": \"GUEST_RIDE_TAKER\",\n  \"issueDescription\": \"short\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.5 Track appeal status (public)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "status",
+                "{{appealTicket}}"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/status/{{appealTicket}}"
+            },
+            "description": "**Purpose:** Status tracking by ticket number.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- status SUBMITTED.\n",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Submitted', () => pm.expect(pm.response.json().status).to.eql('SUBMITTED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.6 Admin - list appeals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "appeals"
+              ],
+              "raw": "{{baseUrl}}/api/v1/admin/appeals"
+            },
+            "description": "**Purpose:** Admin queue.\n\n**Steps:**\n1. Send as admin.\n\n**Expected result:**\n- Contains {{appealId}}.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const id = Number(pm.collectionVariables.get('appealId'));",
+                  "pm.test('Listed', () => pm.expect(pm.response.json().some(a => a.id === id)).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.7 Souptik - tries to resolve his own appeal (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "appeals",
+                "{{appealId}}",
+                "resolve"
+              ],
+              "raw": "{{baseUrl}}/api/v1/admin/appeals/{{appealId}}/resolve"
+            },
+            "description": "**Purpose:** Admin only.\n\n**Steps:**\n1. Send as a normal user.\n\n**Expected result:**\n- HTTP 403.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"APPROVED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.8 Admin - approve with all remediation flags",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "appeals",
+                "{{appealId}}",
+                "resolve"
+              ],
+              "raw": "{{baseUrl}}/api/v1/admin/appeals/{{appealId}}/resolve"
+            },
+            "description": "**Purpose:** Approve and unlock the device binding, the company/e-mail lock and update the city (old commutes archived).\n\n**Steps:**\n1. Send as admin.\n\n**Expected result:**\n- status APPROVED; resolutionActions mention device limit, company/e-mail unlock and City set to HYDERABAD.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"APPROVED\",\n  \"adminRemarks\": \"Identity verified over call\",\n  \"unlockDeviceLimit\": true,\n  \"unlockCompanyAndEmail\": true,\n  \"targetCity\": \"HYDERABAD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Approved', () => pm.expect(j.status).to.eql('APPROVED'));",
+                  "pm.test('Device unlocked', () => pm.expect(j.resolutionActions).to.include('Device limit unlocked'));",
+                  "pm.test('Company unlocked', () => pm.expect(j.resolutionActions).to.include('Company and corporate e-mail unlocked'));",
+                  "pm.test('City', () => pm.expect(j.resolutionActions).to.include('City set to HYDERABAD'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.9 Admin - resolve again (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "appeals",
+                "{{appealId}}",
+                "resolve"
+              ],
+              "raw": "{{baseUrl}}/api/v1/admin/appeals/{{appealId}}/resolve"
+            },
+            "description": "**Purpose:** Already resolved.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 409.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"REJECTED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.10 Track appeal - approved",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "appeals",
+                "status",
+                "{{appealTicket}}"
+              ],
+              "raw": "{{baseUrl}}/api/v1/appeals/status/{{appealTicket}}"
+            },
+            "description": "**Purpose:** User sees the result.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- APPROVED.\n",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Approved', () => pm.expect(pm.response.json().status).to.eql('APPROVED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.11 Second mobile number can now use the device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "send-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/auth/send-otp"
+            },
+            "description": "**Purpose:** The conflicting binding is UNBOUND_BY_APPEAL, so the device is free.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 200 (previously 403).\n",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919876500001\",\n  \"deviceId\": \"DEVICE-SOUPTIK-001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "13. Employer and city migration (Cognizant Kolkata -> Capgemini Hyderabad)",
+      "description": "Run after the appeal folder.",
+      "item": [
+        {
+          "name": "13.1 Souptik - e-mail domain does not match company (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "request"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/request"
+            },
+            "description": "**Purpose:** Domain/company mismatch.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 400.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCompanyName\": \"Cognizant\",\n  \"newCorporateEmail\": \"souptik.tat@capgemini.com\",\n  \"newCity\": \"HYDERABAD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.2 Souptik - request company change (unlocked)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "request"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/request"
+            },
+            "description": "**Purpose:** After the appeal the profile is unlocked: an OTP is sent to the new corporate address.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 200, devOtp 123456 (dev profile).\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCompanyName\": \"Capgemini\",\n  \"newCorporateEmail\": \"souptik.tat@capgemini.com\",\n  \"newCity\": \"HYDERABAD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Dev OTP', () => pm.expect(pm.response.json().devOtp).to.eql('123456'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.3 Souptik - badge is pending",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/me"
+            },
+            "description": "**Purpose:** Transition state.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- PENDING_REVERIFICATION.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Pending', () => pm.expect(pm.response.json().corporateBadge.status).to.eql('PENDING_REVERIFICATION'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.4 Souptik - wrong OTP (negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/verify-otp"
+            },
+            "description": "**Purpose:** Wrong code.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 400.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.5 Souptik - verify OTP (complete migration)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "verify-otp"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/verify-otp"
+            },
+            "description": "**Purpose:** Archives Cognizant, switches company/e-mail/city atomically, re-locks, archives Kolkata commutes and creates Hyderabad placeholders.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- archivedCompany Cognizant; profile Capgemini / souptik.tat@capgemini.com / HYDERABAD / companyLocked true.\n- migration.newTemplates: Gowlidoddy -> Capgemini Nanakramguda and the return trip.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Archived Cognizant', () => pm.expect(j.archivedCompany).to.eql('Cognizant'));",
+                  "pm.test('Capgemini verified', () => { pm.expect(j.profile.corporateBadge.companyName).to.eql('Capgemini'); pm.expect(j.profile.corporateBadge.verified).to.be.true; });",
+                  "pm.test('New e-mail and city', () => { pm.expect(j.profile.corporateEmail).to.eql('souptik.tat@capgemini.com'); pm.expect(j.profile.city).to.eql('HYDERABAD'); });",
+                  "pm.test('Locked again', () => pm.expect(j.profile.companyLocked).to.be.true);",
+                  "pm.test('Hyderabad placeholders', () => { pm.expect(j.migration.newTemplates.length).to.eql(2); pm.expect(j.migration.newTemplates[0].start.label).to.include('Gowlidoddy'); pm.expect(j.migration.newTemplates[0].end.label).to.include('Capgemini'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.6 Souptik - active commutes are Hyderabad only",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rides",
+                "templates"
+              ],
+              "raw": "{{baseUrl}}/api/v1/rides/templates"
+            },
+            "description": "**Purpose:** Old Kolkata commutes (Ichapur -> Candor TechSpace) archived.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- Every active template has city HYDERABAD.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Active = Hyderabad', () => pm.expect(j.filter(t => t.active).every(t => t.city === 'HYDERABAD')).to.be.true);",
+                  "pm.test('Kolkata archived', () => pm.expect(j.filter(t => t.city === 'KOLKATA').every(t => !t.active)).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13.7 Souptik - second change is locked again (HTTP 423)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "company-change",
+                "request"
+              ],
+              "raw": "{{baseUrl}}/api/v1/users/company-change/request"
+            },
+            "description": "**Purpose:** The new employer is locked.\n\n**Steps:**\n1. Send.\n\n**Expected result:**\n- HTTP 423.\n",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{souptikToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newCompanyName\": \"TCS\",\n  \"newCorporateEmail\": \"souptik.tat@tcs.com\",\n  \"newCity\": \"MUMBAI\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 423', () => pm.response.to.have.status(423));"
                 ]
               }
             }

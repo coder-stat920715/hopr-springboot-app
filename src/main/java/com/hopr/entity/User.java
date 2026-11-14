@@ -56,6 +56,21 @@ public class User {
     private String verifiedCompanyName;
     private String previousCompanyName;
 
+    /** true once a corporate e-mail is verified; unlocked only by an approved appeal or support reset. */
+    @Builder.Default
+    private boolean companyLocked = false;
+
+    @Builder.Default
+    private boolean corporateEmailLocked = false;
+
+    private String corporateLockReason;
+    private String pendingCompanyName;
+    private String pendingCity;
+    private Instant corporateVerifiedAt;
+
+    /** City in which the current corporate affiliation was verified (kept for the audit history). */
+    private String corporateCity;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private CompanyStatus companyStatus = CompanyStatus.NONE;

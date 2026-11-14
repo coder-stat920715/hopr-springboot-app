@@ -45,6 +45,13 @@ public class TripAccessService {
     }
 
     @Transactional(readOnly = true)
+    public boolean isBookingParticipant(Long bookingId, Long userId) {
+        return bookings.findById(bookingId)
+                .map(b -> b.getGuest().getId().equals(userId) || b.getRide().getHost().getId().equals(userId))
+                .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
     public Ride requireParticipant(Long rideId, Long userId) {
         Ride ride = rides.findById(rideId).orElseThrow(() -> new ResourceNotFoundException("Ride not found: " + rideId));
         if (!participantIds(rideId).contains(userId)) {

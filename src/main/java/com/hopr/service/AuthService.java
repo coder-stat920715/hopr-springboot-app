@@ -34,10 +34,12 @@ public class AuthService {
     private final WalletService walletService;
     private final JwtService jwtService;
     private final DtoMapper mapper;
+    private final DeviceBindingService deviceBindingService;
     private final HoprProperties props;
 
-    public SendOtpResponse sendOtp(SendOtpRequest req) {
+    public SendOtpResponse sendOtp(SendOtpRequest req, String headerDeviceId) {
         String phone = PhoneUtil.normalize(req.phone());
+        deviceBindingService.assertAllowed(firstNonBlank(req.deviceId(), headerDeviceId), phone);
         String code = otpService.issue(phone, OtpPurpose.LOGIN);
         notifications.sendSms(phone, "Your Hopr verification code is " + code + ". Valid for "
                 + props.getOtp().getTtlMinutes() + " minutes.");
@@ -46,8 +48,10 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse verifyOtp(VerifyOtpRequest req) {
+    public TokenResponse verifyOtp(VerifyOtpRequest req, String headerDeviceId) {
         String phone = PhoneUtil.normalize(req.phone());
+        String deviceId = firstNonBlank(req.deviceId(), headerDeviceId);
+        deviceBindingService.assertAllowed(deviceId, phone);
         otpService.verify(phone, OtpPurpose.LOGIN, req.otp());
 
         boolean isNew = false;
@@ -68,7 +72,12 @@ public class AuthService {
             user.setFullName(req.fullName().trim());
             user = users.save(user);
         }
+        deviceBindingService.bind(deviceId, req.deviceModel(), req.osPlatform(), user);
         return tokens(user, isNew);
+    }
+
+    private static String firstNonBlank(String a, String b) {
+        return a != null && !a.isBlank() ? a : (b != null && !b.isBlank() ? b : null);
     }
 
     @Transactional(readOnly = true)

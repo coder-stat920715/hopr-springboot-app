@@ -689,3 +689,53 @@ hopr-springboot-app/
    * **Eureka Dashboard:** `http://localhost:8761`
    * **API Gateway Health:** `http://localhost:8080/actuator/health`
    * **Distributed Tracing (Zipkin):** `http://localhost:9411`
+
+---
+
+## v2 features (Host Quick Actions, device guard, appeals, locked corporate profile)
+
+### New demo accounts (dev, OTP `123456`)
+| Phone | Who |
+|---|---|
+| +919038577517 | **Souptik Tat** - Kolkata, Cognizant (`souptik.tat@cognizant.com`), company **locked**, bound to `DEVICE-SOUPTIK-001` |
+| +919000000008 | **Kiran Rao** - Hyderabad bike host (Gowlidoddy <-> Capgemini Nanakramguda), has 2 pending Quick Action requests |
+| +919000000009 | **Rajan Dutta** - TCS guest, pending request: `19 m -> 19.4 km -> 498 m`, `Rs 79 -> Rs 90`, `> 80% match` |
+| +919000000010 | **Neha Sharma** - 99acres guest, second pending request |
+
+### 1. Host mode & Quick Action
+| Endpoint | Purpose |
+|---|---|
+| `PATCH /api/v1/users/active-mode` `{"mode":"HOST"}` | persist mode + dashboard (fuel cost recovered, seats published, pending quick actions) |
+| `GET /api/v1/host/quick-actions` | `Quick action (N)` cards: guest + corporate badge, timing comparison, walk-and-ride, base/dynamic fare + trend, match label |
+| `GET /api/v1/host/dashboard` | host metrics |
+| `PATCH /api/v1/bookings/{id}/respond` | accept / reject (optimistic locking on the ride) |
+| `POST/GET /api/v1/bookings/{id}/chat` | pre-acceptance chat (also STOMP `/topic/bookings/{id}`) |
+| `POST /api/v1/bookings/{id}/masked-call` | privacy-masked call bridge |
+
+Dynamic pricing (`hopr.pricing.dynamic.*`): peak-hour surcharge, route-detour surcharge, last-seat scarcity surcharge, off-peak discount on an empty ride. The **dynamic fare is the amount held in escrow and paid out**; `discountedFare` is the base.
+`POST /bookings/request` accepts an optional `preferredDepartureTime`.
+
+### 2. Device account limit guard
+`POST /auth/send-otp` and `/auth/verify-otp` accept `deviceId` (+ `deviceModel`, `osPlatform`) in the body or the `X-Device-Id` header. `hopr.security.max-accounts-per-device` (default 1). A second phone number on a bound device gets **HTTP 403** with `errorCode: DEVICE_ACCOUNT_LIMIT_REACHED`, `ctaButtonText: "Submit an appeal"`, `externalAppealUrl`, `internalAppealEndpoint`, `appealWebFormUrl`.
+
+### 3. Appeals (public, no JWT)
+* `POST /api/v1/appeals/submit` - `multipart/form-data` (fields + `screenshots[]`, max 5 files, 5 MB, PNG/JPG/GIF/WEBP/PDF) **or** `application/json`. Fields mirror the Zoho form: name, phone, city (HYDERABAD, KOLKATA, BENGALURU, MUMBAI, PUNE, CHENNAI, DELHI_NCR), profile type (`Host - Ride Giver` / `Guest - Ride Taker`), previous phone, issue (10-20000 chars), optional `deviceId`. Ticket format `HPR-APL-2026-0001`.
+* `GET /api/v1/appeals/status/{ticket}`, `GET /api/v1/appeals/config`.
+* Admin: `GET /api/v1/admin/appeals`, `GET /api/v1/admin/appeals/{id}`, `POST /api/v1/admin/appeals/{id}/resolve`
+```json
+{"decision":"APPROVED","adminRemarks":"Verified","unlockDeviceLimit":true,"unlockCompanyAndEmail":true,"targetCity":"HYDERABAD"}
+```
+Screenshots are stored under `hopr.appeals.upload-dir` (default `uploads/appeals`).
+
+### 4. Locked corporate profile & employer/city migration
+* `User.companyLocked` (true once a corporate e-mail is verified), `corporateEmailLocked`, `corporateLockReason`; archive table `UserCorporateHistory`.
+* `POST /api/v1/users/company-change/request` `{newCompanyName,newCorporateEmail,newCity}` -> **423 `COMPANY_UPDATE_LOCKED`** (with `prefilledAppeal`) while locked; otherwise OTP to the new corporate e-mail (domain must be allow-listed and match the company).
+* `POST /api/v1/users/company-change/verify-otp` -> archives the old affiliation, switches company / e-mail / city, re-locks, archives old commutes and (for Capgemini Hyderabad) creates `Gowlidoddy <-> Capgemini Nanakramguda` placeholders.
+* The original `company-change/initiate|verify` endpoints still work and ignore the lock.
+
+### 5. Visual test pages (static, served by Spring Boot)
+`/host-quick-actions.html`, `/appeal-form.html`, `/profile-migration.html` (open `http://localhost:8080/...`).
+
+### Notes
+* `RideService.migrateCitySchedules` now cancels **all** upcoming rides of the host (not only template-generated ones).
+* Postman: `postman/hopr-postman-collection.json` (174 requests) - folders 9-13 cover the new features.

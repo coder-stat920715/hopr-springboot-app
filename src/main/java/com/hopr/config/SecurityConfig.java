@@ -32,7 +32,9 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/swagger-ui.html", "/swagger-ui/**",
-                                "/v3/api-docs/**", "/ws/**", "/ws-sockjs/**", "/actuator/health").permitAll()
+                                "/v3/api-docs/**", "/ws/**", "/ws-sockjs/**", "/actuator/health",
+                                "/api/v1/appeals/**", "/", "/*.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/support/company-reset", "/api/v1/support/tickets/all",
                                 "/api/v1/support/tickets/*/respond").hasRole("ADMIN")
                         .anyRequest().authenticated())

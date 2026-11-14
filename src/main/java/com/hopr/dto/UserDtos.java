@@ -18,7 +18,8 @@ public final class UserDtos {
                               CommuteMode commuteMode, LocationDto home, LocationDto office,
                               String corporateEmail, CorporateBadge corporateBadge,
                               boolean licenceVerified, double ratingAverage, int ratingCount,
-                              String referralCode, Set<String> roles) {
+                              String referralCode, Set<String> roles, boolean companyLocked,
+                              boolean corporateEmailLocked, String corporateLockReason) {
     }
 
     public record UpdateProfileRequest(String fullName, String profilePhotoUrl, String city,
@@ -30,6 +31,17 @@ public final class UserDtos {
     }
 
     public record OtpRequest(@NotBlank String otp) {
+    }
+
+    public record ActiveModeRequest(@NotNull CommuteMode mode) {
+    }
+
+    public record CompanyChangeRequest(@NotBlank String newCompanyName, @NotBlank @Email String newCorporateEmail,
+                                       @NotBlank String newCity) {
+    }
+
+    public record CompanyChangeVerifyResponse(UserProfile profile, String archivedCompany,
+                                              RideDtos.MigrateResponse migration) {
     }
 
     public record CompanyResetRequest(@NotNull Long userId, String reason, Long ticketId) {

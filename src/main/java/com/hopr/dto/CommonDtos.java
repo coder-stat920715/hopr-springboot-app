@@ -39,6 +39,16 @@ public final class CommonDtos {
     public record MessageResponse(String message) {
     }
 
+    public record DeviceLimitErrorResponse(Instant timestamp, int status, String errorCode, String message,
+                                           String description, String ctaButtonText, String externalAppealUrl,
+                                           String internalAppealEndpoint, String appealWebFormUrl) {
+    }
+
+    public record CompanyLockedResponse(Instant timestamp, int status, String errorCode, String message,
+                                        String description, String internalAppealEndpoint,
+                                        String externalAppealUrl, Map<String, Object> prefilledAppeal) {
+    }
+
     public record ErrorResponse(Instant timestamp, int status, String error, String message,
                                 Map<String, String> fieldErrors) {
     }

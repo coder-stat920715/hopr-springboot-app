@@ -44,13 +44,15 @@ public class RideMatchingService {
     private final RideRepository rides;
     private final UserRepository users;
     private final PricingService pricing;
+    private final DynamicPricingService dynamicPricing;
     private final DtoMapper mapper;
     private final HoprProperties props;
     private final Clock clock;
 
     public record MatchDetail(int matchPercentage, int pickupWalkMeters, double sharedRideKm, int dropWalkMeters,
                               LocalTime pickupWindowStart, LocalTime pickupWindowEnd, GeoPoint pickupPoint,
-                              GeoPoint dropPoint, PricingService.Fare fare) {
+                              GeoPoint dropPoint, PricingService.Fare fare, java.math.BigDecimal dynamicFare,
+                              com.hopr.entity.FareTrend fareTrend) {
     }
 
     public record Criteria(GeoPoint start, GeoPoint end, LocalDate date, LocalTime time, Integer windowMinutes,
@@ -91,9 +93,10 @@ public class RideMatchingService {
         LocalTime windowEnd = windowStart.plusMinutes(cfg.getPickupWindowMinutes());
 
         PricingService.Fare fare = pricing.quote(ride.getRatePerKm(), sharedKm);
+        DynamicPricingService.DynamicQuote dq = dynamicPricing.quote(ride, fare.discounted(), pickupWalk, dropWalk, sharedKm);
         return Optional.of(new MatchDetail(matchPct, pickupWalk, sharedKm, dropWalk, windowStart, windowEnd,
                 GeoPoint.of("Host pickup point", pick.lat(), pick.lng()),
-                GeoPoint.of("Host drop point", drop.lat(), drop.lng()), fare));
+                GeoPoint.of("Host drop point", drop.lat(), drop.lng()), fare, dq.dynamicFare(), dq.trend()));
     }
 
     @Transactional(readOnly = true)
@@ -154,6 +157,6 @@ public class RideMatchingService {
                 m.pickupWindowStart(), m.pickupWindowEnd(), r.getSeatsLeft(),
                 m.fare().standard(), m.fare().discounted(), tags,
                 LocationDto.from(r.getStart()), LocationDto.from(r.getEnd()),
-                LocationDto.from(m.pickupPoint()), LocationDto.from(m.dropPoint()));
+                LocationDto.from(m.pickupPoint()), LocationDto.from(m.dropPoint()), m.dynamicFare(), m.fareTrend());
     }
 }

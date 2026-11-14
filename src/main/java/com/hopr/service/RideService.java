@@ -113,6 +113,33 @@ public class RideService {
         }
     }
 
+    public record ArchiveResult(int templates, int cancelledRides) {
+    }
+
+    /** Deactivates all active commute templates and cancels every upcoming scheduled ride of the host. */
+    @Transactional
+    public ArchiveResult archiveAllActiveCommutes(Long userId, String reason) {
+        int archived = 0;
+        for (RideTemplate t : templates.findByHostIdAndActiveTrue(userId)) {
+            t.setActive(false);
+            templates.save(t);
+            archived++;
+        }
+        int cancelled = 0;
+        for (Ride r : rides.findByHostIdAndRideDateGreaterThanEqualAndStatus(userId, LocalDate.now(clock), RideStatus.SCHEDULED)) {
+            cancelRideInternal(r, reason);
+            cancelled++;
+        }
+        return new ArchiveResult(archived, cancelled);
+    }
+
+    /** true when the user has a verified licence and at least one vehicle (i.e. can publish commutes). */
+    @Transactional(readOnly = true)
+    public boolean canHostCommutes(Long userId) {
+        User u = users.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return u.isLicenceVerified() && vehicles.countByOwnerIdAndRemovedFalse(userId) > 0;
+    }
+
     /** Daily job that keeps the planner horizon filled for all active templates. */
     @Scheduled(cron = "0 0 1 * * *", zone = "Asia/Kolkata")
     @Transactional
@@ -269,7 +296,7 @@ public class RideService {
             throw new ConflictException("Only an IN_PROGRESS ride can be completed (current: " + r.getStatus() + ")");
         }
         for (Booking b : bookings.findByRideIdAndStatus(rideId, BookingStatus.CONFIRMED)) {
-            BigDecimal fare = b.getDiscountedFare();
+            BigDecimal fare = b.effectiveFare();
             BigDecimal payout = fare.subtract(pricing.platformFee(fare));
             wallets.settleEscrow(b.getGuest().getId(), r.getHost().getId(), fare, payout, b.getId());
             b.setEscrowHeld(false);
@@ -299,7 +326,7 @@ public class RideService {
         for (Booking b : bookings.findByRideIdOrderByCreatedAtAsc(r.getId())) {
             if (b.getStatus() == BookingStatus.CONFIRMED) {
                 if (b.isEscrowHeld()) {
-                    wallets.refundEscrow(b.getGuest().getId(), b.getDiscountedFare(), b.getId(),
+                    wallets.refundEscrow(b.getGuest().getId(), b.effectiveFare(), b.getId(),
                             "Full refund: " + reason);
                 }
                 b.setEscrowHeld(false);
@@ -369,16 +396,9 @@ public class RideService {
             days = EnumSet.copyOf(WEEKDAYS);
         }
 
-        int cancelled = 0;
         LocalDate today = LocalDate.now(clock);
-        for (RideTemplate t : old) {
-            t.setActive(false);
-            templates.save(t);
-            for (Ride r : rides.findByTemplateIdAndRideDateGreaterThanEqualAndStatus(t.getId(), today, RideStatus.SCHEDULED)) {
-                cancelRideInternal(r, "Host relocated to a new city/office");
-                cancelled++;
-            }
-        }
+        // archives the templates AND cancels every upcoming ride of the host (also one-off rides)
+        int cancelled = archiveAllActiveCommutes(userId, "Host relocated to a new city/office").cancelledRides();
 
         int seats = vehicle.getSeats();
         List<TemplateResponse> created = new ArrayList<>();

@@ -18,6 +18,7 @@ public class MaskedCallSession {
     private Long id;
 
     private Long rideId;
+    private Long bookingId;
     private Long callerId;
     private Long calleeId;
     private String virtualNumber;

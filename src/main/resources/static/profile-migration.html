@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hopr - Profile &amp; Corporate Switch</title>
+<style>
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f3f0fa; color:#1d1433; }
+  .wrap { max-width:560px; margin:0 auto; padding:16px; }
+  .banner { background:linear-gradient(135deg,#6b2fd6,#4b1fa0); color:#fff; border-radius:14px; padding:18px; margin-bottom:14px; }
+  .banner h1 { margin:0 0 4px; font-size:21px; } .banner p { margin:0; font-size:13px; opacity:.9; }
+  .card { background:#fff; border-radius:14px; padding:14px; margin-bottom:12px; box-shadow:0 3px 12px rgba(80,40,160,.12); font-size:14px; }
+  .card h3 { margin:0 0 8px; font-size:16px; }
+  .kv { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #f0ecf9; }
+  .kv span:first-child { color:#6d6585; }
+  .pill { display:inline-block; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:700; }
+  .locked { background:#fde8ec; color:#a3162d; } .unlocked { background:#e5f6ec; color:#14703a; }
+  input, select { width:100%; padding:10px; margin:5px 0 8px; border:1px solid #cfc8e3; border-radius:8px; font-size:15px; box-sizing:border-box; }
+  button { padding:11px 14px; border:0; border-radius:10px; background:#6b2fd6; color:#fff; font-weight:700; cursor:pointer; margin:4px 4px 0 0; }
+  button.alt { background:#fff; color:#6b2fd6; border:2px solid #6b2fd6; }
+  pre { background:#faf8ff; padding:8px; border-radius:8px; overflow:auto; font-size:12px; white-space:pre-wrap; }
+  .flow { display:flex; align-items:center; justify-content:center; gap:10px; font-weight:700; margin:6px 0 12px; flex-wrap:wrap; }
+  .flow span.arrow { color:#6b2fd6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner"><h1>Profile &amp; Corporate Switch</h1>
+    <p>Cognizant (Kolkata) &rarr; Capgemini (Hyderabad): locked vs. unlocked company transition.</p></div>
+
+  <div class="card"><h3>1. Demo login</h3>
+    <button id="loginBtn">Login as Souptik Tat (OTP 123456)</button>
+    <button class="alt" id="resetNote" style="display:none"></button></div>
+
+  <div class="card"><h3>2. Current profile</h3><div id="profile">Not logged in.</div></div>
+
+  <div class="card"><h3>3. Request company &amp; city change</h3>
+    <div class="flow"><span>souptik.tat@cognizant.com</span><span class="arrow">&rarr;</span><span>souptik.tat@capgemini.com</span></div>
+    <div class="flow"><span>Kolkata</span><span class="arrow">&rarr;</span><span>Hyderabad</span></div>
+    <input id="company" value="Capgemini" placeholder="New company">
+    <input id="email" value="souptik.tat@capgemini.com" placeholder="New corporate e-mail">
+    <input id="city" value="HYDERABAD" placeholder="New city">
+    <button id="reqBtn">Request change</button>
+    <pre id="reqOut"></pre></div>
+
+  <div class="card"><h3>4. Locked? Submit an appeal (demo shortcut)</h3>
+    <p>When the profile is locked the API answers <b>423 COMPANY_UPDATE_LOCKED</b> with a pre-filled appeal. The buttons below submit it and let a demo admin approve it.</p>
+    <button id="appealBtn" class="alt">Submit appeal</button>
+    <button id="approveBtn" class="alt">Admin: approve &amp; unlock</button>
+    <a href="/appeal-form.html">Open full appeal form</a>
+    <pre id="appealOut"></pre></div>
+
+  <div class="card"><h3>5. Verify OTP</h3>
+    <input id="otp" value="123456" placeholder="6-digit OTP">
+    <button id="verifyBtn">Verify &amp; complete migration</button>
+    <pre id="verifyOut"></pre></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let token = '', adminToken = '', prefill = null, ticket = null, appealId = null;
+async function call(path, opts = {}, tok = token) {
+  opts.headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
+  if (tok) opts.headers['Authorization'] = 'Bearer ' + tok;
+  const res = await fetch(path, opts);
+  let body = null; try { body = await res.json(); } catch (e) {}
+  return {status: res.status, body};
+}
+async function login(phone) {
+  await call('/api/v1/auth/send-otp', {method: 'POST', body: JSON.stringify({phone})}, '');
+  const r = await call('/api/v1/auth/verify-otp', {method: 'POST', body: JSON.stringify({phone, otp: '123456'})}, '');
+  return r.body.accessToken;
+}
+async function refresh() {
+  const r = await call('/api/v1/users/me');
+  const p = r.body;
+  if (!p || !p.phone) { $('profile').textContent = 'Could not load profile'; return; }
+  const lock = p.companyLocked ? '<span class="pill locked">LOCKED</span>' : '<span class="pill unlocked">UNLOCKED</span>';
+  $('profile').innerHTML =
+    `<div class="kv"><span>Name</span><b>${p.fullName}</b></div>` +
+    `<div class="kv"><span>Company</span><b>${p.corporateBadge.companyName || '-'} (${p.corporateBadge.status})</b></div>` +
+    `<div class="kv"><span>Corporate e-mail</span><b>${p.corporateEmail || '-'}</b></div>` +
+    `<div class="kv"><span>City</span><b>${p.city}</b></div>` +
+    `<div class="kv"><span>Company lock</span>${lock}</div>`;
+}
+$('loginBtn').onclick = async () => { token = await login('+919038577517'); await refresh(); };
+$('reqBtn').onclick = async () => {
+  const r = await call('/api/v1/users/company-change/request', {method: 'POST',
+    body: JSON.stringify({newCompanyName: $('company').value, newCorporateEmail: $('email').value, newCity: $('city').value})});
+  if (r.status === 423) prefill = r.body.prefilledAppeal;
+  $('reqOut').textContent = 'HTTP ' + r.status + '\n' + JSON.stringify(r.body, null, 2);
+  await refresh();
+};
+$('appealBtn').onclick = async () => {
+  const pf = prefill || {registeredName: 'Souptik Tat', registeredPhoneNumber: '9038577517', registeredCity: 'KOLKATA',
+    profileType: 'HOST_RIDE_GIVER', issueDescription: 'I moved from Cognizant Kolkata to Capgemini Hyderabad and need to change my company.'};
+  pf.deviceId = 'DEVICE-SOUPTIK-001';
+  const r = await call('/api/v1/appeals/submit', {method: 'POST', body: JSON.stringify(pf)}, '');
+  if (r.body && r.body.id) { ticket = r.body.appealNumber || r.body.appealTicketNumber; appealId = r.body.id; }
+  $('appealOut').textContent = 'HTTP ' + r.status + '\n' + JSON.stringify(r.body, null, 2);
+};
+$('approveBtn').onclick = async () => {
+  if (!appealId) { $('appealOut').textContent = 'Submit an appeal first.'; return; }
+  adminToken = adminToken || await login('+919000000000');
+  const r = await call('/api/v1/admin/appeals/' + appealId + '/resolve', {method: 'POST',
+    body: JSON.stringify({decision: 'APPROVED', adminRemarks: 'Verified by support', unlockDeviceLimit: true,
+      unlockCompanyAndEmail: true, targetCity: 'HYDERABAD'})}, adminToken);
+  $('appealOut').textContent = 'HTTP ' + r.status + '\n' + JSON.stringify(r.body, null, 2);
+  await refresh();
+};
+$('verifyBtn').onclick = async () => {
+  const r = await call('/api/v1/users/company-change/verify-otp', {method: 'POST', body: JSON.stringify({otp: $('otp').value})});
+  $('verifyOut').textContent = 'HTTP ' + r.status + '\n' + JSON.stringify(r.body, null, 2);
+  await refresh();
+};
+</script>
+</body>
+</html>

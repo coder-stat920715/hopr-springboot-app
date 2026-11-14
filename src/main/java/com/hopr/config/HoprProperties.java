@@ -20,6 +20,8 @@ public class HoprProperties {
     private Cancellation cancellation = new Cancellation();
     private Referral referral = new Referral();
     private Seed seed = new Seed();
+    private Security security = new Security();
+    private Appeals appeals = new Appeals();
 
     @Getter
     @Setter
@@ -56,6 +58,34 @@ public class HoprProperties {
         private int minimumFare = 10;
         private int discountPercent = 25;
         private int platformFeePercent = 5;
+        private Dynamic dynamic = new Dynamic();
+    }
+
+    /** Surge / dynamic fuel-share pricing knobs. */
+    @Getter
+    @Setter
+    public static class Dynamic {
+        private boolean enabled = true;
+        private int peakSurchargePercent = 10;
+        private int offPeakDiscountPercent = 5;
+        private int maxDetourSurchargePercent = 8;
+        private int scarcitySurchargePercent = 5;
+    }
+
+    @Getter
+    @Setter
+    public static class Security {
+        /** Number of distinct phone numbers that may be actively bound to one physical device. */
+        private int maxAccountsPerDevice = 1;
+    }
+
+    @Getter
+    @Setter
+    public static class Appeals {
+        private String externalFormUrl = "https://survey.zohopublic.in/zs/ekBH9S";
+        private String uploadDir = "uploads/appeals";
+        private int maxAttachments = 5;
+        private long maxFileSizeBytes = 5L * 1024 * 1024;
     }
 
     @Getter

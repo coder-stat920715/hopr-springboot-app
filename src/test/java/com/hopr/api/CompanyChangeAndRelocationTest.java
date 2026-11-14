@@ -100,7 +100,7 @@ class CompanyChangeAndRelocationTest {
         User ananya = users.findByPhone(DataInitializer.ANANYA_KOL_GUEST).orElseThrow();
         List<Booking> ananyaBookings = bookings.findByGuestIdOrderByCreatedAtDesc(ananya.getId());
         assertThat(ananyaBookings).isNotEmpty();
-        //assertThat(ananyaBookings).allMatch(b -> b.getStatus() == BookingStatus.CANCELLED);
+        assertThat(ananyaBookings).allMatch(b -> b.getStatus() == BookingStatus.CANCELLED);
     }
 
     @Test
